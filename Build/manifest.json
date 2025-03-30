@@ -1,15 +1,19 @@
 {
-    "name": "NotHenry",
-    "author": "NotRob",
-    "version_number": "0.0.0",
-    "website_url": "",
-    "description": "I have not changed the manifest and now my mod will be deprecated",
+    "name": "JohnnyMod",
+    "authorName":"HasteReapr",
+    "website_url":"https://github.com/HasteReapr/JohnnyMod/tree/NewMain",
+    "displayName":"Johnny Survivor",
+
+    "description": "Adds Johnny from the Guilty Gear series as a playable character.",
+    "version_number": "1.1.0",
     "dependencies": [
-        "bbepis-BepInExPack-5.4.1905",
-        "RiskofThunder-R2API_Core-5.0.3",
-        "RiskofThunder-R2API_Prefab-1.0.1",
-        "RiskofThunder-R2API_RecalculateStats-1.0.0",
+        "bbepis-BepInExPack-5.4.2117",
+        "RiskofThunder-HookGenPatcher-1.2.5",
+        "RiskofThunder-R2API_Core-5.1.5",
+        "RiskofThunder-R2API_DamageType-1.1.7",
         "RiskofThunder-R2API_Language-1.0.1",
-        "RiskofThunder-R2API_Sound-1.0.2"
+        "RiskofThunder-R2API_Prefab-1.0.4",
+        "RiskofThunder-R2API_RecalculateStats-1.5.0",
+        "RiskofThunder-R2API_Sound-1.0.3"
     ]
 }

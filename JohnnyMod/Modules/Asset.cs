@@ -44,7 +44,7 @@ namespace JohnnyMod.Modules
             {
                 try
                 {
-                    assetBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(JohnnyPlugin.instance.Info.Location), "JohnnyMod/plugins/AssetBundles", bundleName));
+                    assetBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(JohnnyPlugin.instance.Info.Location), bundleName));
                 }
                 catch (System.Exception e)
                 {

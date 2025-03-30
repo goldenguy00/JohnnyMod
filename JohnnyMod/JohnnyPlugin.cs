@@ -3,13 +3,15 @@ using JohnnyMod.Survivors.Johnny;
 using JohnnyMod.Survivors.Johnny.Components;
 using R2API.Utils;
 using RoR2;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Permissions;
 using UnityEngine.Networking;
 
 [module: UnverifiableCode]
+#pragma warning disable CS0618 // Type or member is obsolete
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore CS0618 // Type or member is obsolete
 
 //rename this namespace
 namespace JohnnyMod
@@ -27,6 +29,8 @@ namespace JohnnyMod
 
         public static JohnnyPlugin instance;
 
+        public static bool EmoteApiInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.CustomEmotesAPI");
+
         void Awake()
         {
             instance = this;
@@ -36,13 +40,9 @@ namespace JohnnyMod
             Modules.Language.Init();
 
             new JohnnySurvivor().Initialize();
+            new Modules.ContentPacks().Initialize();
 
             Hook();
-
-            //handles all of the emoteAPI compatability stuff
-            if (EmoteAPICompat.enabled) EmoteAPICompat.EmoteHook();
-
-            new Modules.ContentPacks().Initialize();
         }
 
         private void Hook()
@@ -50,6 +50,9 @@ namespace JohnnyMod
             On.RoR2.MapZone.TryZoneStart += MapZone_TryZoneStart;
             //Run.onClientGameOverGlobal += Run_onClientGameOverGlobal;
             On.RoR2.Run.OnClientGameOver += Run_OnClientGameOver;
+
+            //handles all of the emoteAPI compatability stuff
+            On.RoR2.SurvivorCatalog.Init += SurvivorCatalog_Init;
         }
 
         private void Run_OnClientGameOver(On.RoR2.Run.orig_OnClientGameOver orig, Run self, RunReport runReport)
@@ -63,43 +66,44 @@ namespace JohnnyMod
                     Util.PlaySound("PlayWinVoice", self.gameObject);
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
+                Log.Error(e);
                 Log.Error("Had issue with RunOnClientGameOver call. But seeing this means the vanilla version ran.");
             }
         }
 
-        private void Run_onClientGameOverGlobal(Run arg1, RunReport arg2)
+        private void Run_onClientGameOverGlobal(Run run, RunReport runReport)
         {
             bool isJohgn = false;
-            for (int x = 0; x < arg2.playerInfoCount; x++)
+            for (int x = 0; x < runReport.playerInfoCount; x++)
             {
                 Log.Message("Scanning for Johgnny");
-                if (arg2.playerInfos[x].bodyName.Equals("JohnnyBody"))
+                if (runReport.playerInfos[x].bodyName.Equals("JohnnyBody"))
                     isJohgn = true;
             }
 
             if (isJohgn)
             {
-                if (arg2.gameEnding.isWin)
+                if (runReport.gameEnding.isWin)
                 {
-                    Util.PlaySound("PlayWinVoice", arg1.gameObject);
+                    Util.PlaySound("PlayWinVoice", run.gameObject);
                 }
                 else
                 {
-                    Util.PlaySound("PlayLostVoice", arg1.gameObject);
+                    Util.PlaySound("PlayLostVoice", run.gameObject);
                 }
             }
             Log.Message("Trying to play the win voice");
-            Util.PlaySound("PlayWinVoice", arg1.gameObject);
+            Util.PlaySound("PlayWinVoice", run.gameObject);
 
-            if (arg2.gameEnding.isWin)
+            if (runReport.gameEnding.isWin)
             {
-                Util.PlaySound("PlayWinVoice", arg1.gameObject);
+                Util.PlaySound("PlayWinVoice", run.gameObject);
             }
             else
             {
-                Util.PlaySound("PlayLostVoice", arg1.gameObject);
+                Util.PlaySound("PlayLostVoice", run.gameObject);
             }
         }
 
@@ -112,6 +116,16 @@ namespace JohnnyMod
             }
 
             orig(self, other);
+        }
+
+        // idk i really didnt trust the previous implementation
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static void SurvivorCatalog_Init(On.RoR2.SurvivorCatalog.orig_Init orig)
+        {
+            orig();
+
+            if (JohnnyPlugin.EmoteApiInstalled)
+                EmoteAPICompat.EmoteHook();
         }
     }
 }
